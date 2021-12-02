@@ -1,3 +1,3 @@
 # Advent Of Code
 
-[adventofcode.com](https://adventofcode.com/)
+My solutions to the [adventofcode](https://adventofcode.com/) coding puzzles.
