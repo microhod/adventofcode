@@ -1,17 +1,17 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"strings"
+
+	"github.com/microhod/adventofcode/internal/file"
 )
 
 const (
-	COURSE_FILE = "course.txt"
-	TEST_FILE   = "test-course.txt"
+	CourseFile = "course.txt"
+	TestFile   = "test-course.txt"
 )
 
 type Command struct {
@@ -25,7 +25,7 @@ type Position struct {
 }
 
 func main() {
-	commands, err := readCommands(COURSE_FILE)
+	commands, err := readCommands(CourseFile)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -59,10 +59,8 @@ func followCommands(commands []Command, initial Position) Position {
 		switch command.Direction {
 		case "forward":
 			position.Horizontal += command.Units
-			break
 		case "up":
 			position.Depth -= command.Units
-			break
 		case "down":
 			position.Depth += command.Units
 		}
@@ -79,10 +77,8 @@ func followCommandsWithAim(commands []Command, initial Position) Position {
 		case "forward":
 			position.Horizontal += command.Units
 			position.Depth += aim * command.Units
-			break
 		case "up":
 			aim -= command.Units
-			break
 		case "down":
 			aim += command.Units
 		}
@@ -92,18 +88,14 @@ func followCommandsWithAim(commands []Command, initial Position) Position {
 }
 
 func readCommands(path string) ([]Command, error) {
-	file, err := os.Open(path)
+	lines, err := file.ReadLines(path)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
 
 	commands := []Command{}
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		command := scanner.Text()
-
-		parts := strings.SplitN(command, " ", 2)
+	for _, line := range(lines) {
+		parts := strings.SplitN(line, " ", 2)
 		if len(parts) != 2 {
 			return nil, fmt.Errorf("expected command to split into two space separated parts, but got %d parts", len(parts))
 		}

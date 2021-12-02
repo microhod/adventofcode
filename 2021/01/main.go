@@ -1,20 +1,20 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
+
+	"github.com/microhod/adventofcode/internal/file"
 )
 
 const (
-	REPORT_FILE = "sonar-sweep-report.txt"
-	TEST_FILE   = "test-report.txt"
+	ReportFile = "sonar-sweep-report.txt"
+	TestFile   = "test-report.txt"
 )
 
 func main() {
-	report, err := readReport(REPORT_FILE)
+	report, err := readReport(ReportFile)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -67,16 +67,14 @@ func slidingWindow(report []int, size int) []int {
 }
 
 func readReport(path string) ([]int, error) {
-	file, err := os.Open(path)
+	lines, err := file.ReadLines(path)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
 
 	report := []int{}
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		depth, err := strconv.Atoi(scanner.Text())
+	for _, line := range(lines) {
+		depth, err := strconv.Atoi(line)
 		if err != nil {
 			return nil, err
 		}
