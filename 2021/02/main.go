@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
 	"github.com/microhod/adventofcode/internal/file"
+	"github.com/microhod/adventofcode/internal/puzzle"
 )
 
 const (
@@ -25,14 +25,14 @@ type Position struct {
 }
 
 func main() {
+	puzzle.NewSolution("Dive!", part1, part2).Run()
+}
+
+func part1() error {
 	commands, err := readCommands(CourseFile)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-
-	fmt.Println()
-
-	fmt.Println("--- Part 1 ---")
 
 	position := Position{Horizontal: 0, Depth: 0}
 	position = followCommands(commands, position)
@@ -40,17 +40,22 @@ func main() {
 	fmt.Printf("Position: %+v\n", position)
 	fmt.Printf("Horizontal * Depth: %d\n", position.Horizontal * position.Depth)
 
-	fmt.Println()
+	return nil
+}
 
-	fmt.Println("--- Part 2 ---")
+func part2() error {
+	commands, err := readCommands(CourseFile)
+	if err != nil {
+		return err
+	}
 
-	position = Position{Horizontal: 0, Depth: 0}
+	position := Position{Horizontal: 0, Depth: 0}
 	position = followCommandsWithAim(commands, position)
 
 	fmt.Printf("Position: %+v\n", position)
 	fmt.Printf("Horizontal * Depth: %d\n", position.Horizontal * position.Depth)
 
-	fmt.Println()
+	return nil
 }
 
 func followCommands(commands []Command, initial Position) Position {

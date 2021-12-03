@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 
 	"github.com/microhod/adventofcode/internal/file"
+	"github.com/microhod/adventofcode/internal/puzzle"
 )
 
 const (
@@ -14,22 +14,29 @@ const (
 )
 
 func main() {
+	puzzle.NewSolution("Sonar Sweep", part1, part2).Run()
+}
+
+func part1() error {
+	var err error
 	report, err := readReport(ReportFile)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	fmt.Println()
-
-	fmt.Println("--- Part 1 ---")
 	fmt.Printf("# depth increases: %d\n", numIncreases(report))
+	return nil
+}
 
-	fmt.Println()
+func part2() error {
+	var err error
+	report, err := readReport(ReportFile)
+	if err != nil {
+		return err
+	}
 
-	fmt.Println("--- Part 2 ---")
 	fmt.Printf("# depth increases (three-measurement sliding window): %d\n", numIncreases(slidingWindow(report, 3)))
-
-	fmt.Println()
+	return nil
 }
 
 func numIncreases(report []int) int {
