@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	BoldRed    = ansi.ColorFunc("red+bh")
-	BoldGreen  = ansi.ColorFunc("green+bh")
+	BoldRed   = ansi.ColorFunc("red+bh")
+	BoldGreen = ansi.ColorFunc("green+bh")
 )
 
 type Solution struct {
@@ -20,7 +20,7 @@ type Solution struct {
 	Parts []func() error
 }
 
-func NewSolution(name string, parts ...func()error) *Solution {
+func NewSolution(name string, parts ...func() error) *Solution {
 	return &Solution{Name: name, Parts: parts}
 }
 
@@ -41,16 +41,16 @@ func (s *Solution) Run() {
 
 	fmt.Println()
 
-	for i, part := range(s.Parts) {
+	for i, part := range s.Parts {
 		// Print part number
-		fmt.Println(BoldRed(fmt.Sprintf("Part %d", i + 1)))
+		fmt.Println(BoldRed(fmt.Sprintf("Part %d", i+1)))
 		fmt.Println()
 
 		// run part
 		start := time.Now()
 		err := part()
 		elapsed := time.Since(start)
-	
+
 		if err != nil {
 			log.Fatalf("oh no! Christmas is cancelled 😱 => %s", err.Error())
 		}
