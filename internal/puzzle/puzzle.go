@@ -4,6 +4,7 @@ package puzzle
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/mgutz/ansi"
 	"github.com/microhod/adventofcode/internal/christmas"
@@ -46,11 +47,16 @@ func (s *Solution) Run() {
 		fmt.Println()
 
 		// run part
+		start := time.Now()
 		err := part()
+		elapsed := time.Since(start)
+	
 		if err != nil {
 			log.Fatalf("oh no! Christmas is cancelled 😱 => %s", err.Error())
 		}
 
+		fmt.Println()
+		log.Printf("⏰ %s", elapsed)
 		fmt.Println()
 	}
 }
