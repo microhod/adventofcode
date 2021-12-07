@@ -4,6 +4,7 @@ package file
 import (
 	"bufio"
 	"os"
+	"github.com/microhod/adventofcode/internal/encoding/csv"
 )
 
 func ReadLines(path string) ([]string, error) {
@@ -20,4 +21,17 @@ func ReadLines(path string) ([]string, error) {
 	}
 
 	return lines, nil
+}
+
+func ReadCsvInts(path string) ([]int, error) {
+	lines, err := ReadLines(path)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(lines) < 1 {
+		return []int{}, nil
+	}
+
+	return csv.ParseInts(lines[0])
 }

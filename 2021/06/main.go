@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
 
 	"github.com/microhod/adventofcode/internal/file"
 	"github.com/microhod/adventofcode/internal/puzzle"
@@ -108,16 +106,7 @@ type LanternFish struct {
 }
 
 func readLanternFish(path string) ([]*LanternFish, error) {
-	lines, err := file.ReadLines(path)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(lines) < 1 {
-		return []*LanternFish{}, nil
-	}
-
-	timers, err := parseCsvInts(lines[0])
+	timers, err := file.ReadCsvInts(path)
 	if err != nil {
 		return nil, err
 	}
@@ -128,18 +117,4 @@ func readLanternFish(path string) ([]*LanternFish, error) {
 	}
 
 	return fish, nil
-}
-
-func parseCsvInts(str string) ([]int, error) {
-	nums := []int{}
-	for _, s := range strings.Split(str, ",") {
-		n, err := strconv.Atoi(s)
-		if err != nil {
-			return nil, err
-		}
-
-		nums = append(nums, n)
-	}
-
-	return nums, nil
 }

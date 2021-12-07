@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/mgutz/ansi"
+	"github.com/microhod/adventofcode/internal/encoding/csv"
 	"github.com/microhod/adventofcode/internal/file"
 	"github.com/microhod/adventofcode/internal/puzzle"
 )
@@ -80,7 +81,7 @@ func readBingo(path string) (*Bingo, error) {
 		return bingo, nil
 	}
 
-	bingo.Numbers, err = parseCsvInts(lines[0])
+	bingo.Numbers, err = csv.ParseInts(lines[0])
 	if err != nil {
 		return nil, err
 	}
@@ -99,20 +100,6 @@ func readBingo(path string) (*Bingo, error) {
 	}
 
 	return bingo, nil
-}
-
-func parseCsvInts(str string) ([]int, error) {
-	nums := []int{}
-	for _, s := range strings.Split(str, ",") {
-		n, err := strconv.Atoi(s)
-		if err != nil {
-			return nil, err
-		}
-
-		nums = append(nums, n)
-	}
-
-	return nums, nil
 }
 
 func parseBingoCard(lines []string) (*Card, error) {
