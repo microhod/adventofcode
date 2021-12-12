@@ -74,22 +74,22 @@ func (s *Solution) Run() {
 	log.SetFlags(0)
 
 	// print christmas tree
-	fmt.Println()
-	fmt.Println(christmas.Tree())
+	log.Println()
+	log.Println(christmas.Tree())
 
 	// print puzzle name
-	fmt.Println(christmas.Lights())
-	fmt.Println()
-	fmt.Println(BoldGreen(fmt.Sprintf("Puzzle: %s", s.Name)))
-	fmt.Println()
-	fmt.Println(christmas.Lights())
+	log.Println(christmas.Lights())
+	log.Println()
+	log.Println(BoldGreen(fmt.Sprintf("Puzzle: %s", s.Name)))
+	log.Println()
+	log.Println(christmas.Lights())
 
-	fmt.Println()
+	log.Println()
 
 	for i, part := range s.Parts {
 		// Print part number
-		fmt.Println(BoldRed(fmt.Sprintf("Part %d", i+1)))
-		fmt.Println()
+		log.Println(BoldRed(fmt.Sprintf("Part %d", i+1)))
+		log.Println()
 
 		// run part
 		start := time.Now()
@@ -100,8 +100,8 @@ func (s *Solution) Run() {
 			log.Fatalf("oh no! Christmas is cancelled 😱 => %s", err.Error())
 		}
 
-		fmt.Println()
+		log.Println()
 		log.Printf("⏰ %s", elapsed)
-		fmt.Println()
+		log.Println()
 	}
 }
