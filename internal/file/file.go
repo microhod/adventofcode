@@ -3,9 +3,21 @@ package file
 
 import (
 	"bufio"
+	"io"
 	"os"
+
 	"github.com/microhod/adventofcode/internal/encoding/csv"
 )
+
+func ReadBytes(path string) ([]byte, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	return io.ReadAll(file)
+}
 
 func ReadLines(path string) ([]string, error) {
 	file, err := os.Open(path)
