@@ -20,54 +20,54 @@ const (
 func main() {
 	// parse arguments
 	if len(os.Args) < 3 {
-		panic("need year and day arguments")
+		fail(fmt.Errorf("need year and day arguments"))
 	}
 	year, err := strconv.Atoi(os.Args[1])
 	if err != nil {
-		panic(err)
+		fail(err)
 	}
 	day, err := strconv.Atoi(os.Args[2])
 	if err != nil {
-		panic(err)
+		fail(err)
 	}
 
 	// create client with token
 	bytes, err := os.ReadFile(tokenFile)
 	if err != nil {
-		panic(err)
+		fail(err)
 	}
 	token := string(bytes)
 
 	client := puzzle.NewClient(token)
 	p, err := client.Get(year, day)
 	if err != nil {
-		panic(err)
+		fail(err)
 	}
 
 	// make folders
 	err = os.MkdirAll(folder(year, day), os.ModePerm)
 	if err != nil {
-		panic(err)
+		fail(err)
 	}
 
 	// README.md
 	readme, err := os.Create(fmt.Sprintf("%s/%s", folder(year, day), readmeFile))
 	if err != nil {
-		panic(err)
+		fail(err)
 	}
 	fmt.Fprintln(readme, p.Readme)
 
 	// input.txt
 	input, err := os.Create(fmt.Sprintf("%s/%s", folder(year, day), inputFile))
 	if err != nil {
-		panic(err)
+		fail(err)
 	}
 	fmt.Fprint(input, p.Input)
 
 	// test.txt
 	test, err := os.Create(fmt.Sprintf("%s/%s", folder(year, day), testFile))
 	if err != nil {
-		panic(err)
+		fail(err)
 	}
 	fmt.Fprintln(test, p.TestInput)
 
@@ -77,14 +77,19 @@ func main() {
     if _, err := os.Stat(solutionPath); os.IsNotExist(err) {
 		main, err := os.Create(solutionPath)
 		if err != nil {
-			panic(err)
+			fail(err)
 		}
 		solution, err := puzzle.InitialSolutionFile(p)
 		if err != nil {
-			panic(err)
+			fail(err)
 		}
 		fmt.Fprint(main, solution)
     }
+}
+
+func fail(err error) {
+	fmt.Printf("ERROR: %s\n", err)
+	os.Exit(1)
 }
 
 func folder(year, day int) string {

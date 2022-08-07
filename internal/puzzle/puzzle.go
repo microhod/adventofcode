@@ -68,17 +68,13 @@ func (client *Client) Get(year, day int) (*Puzzle, error) {
 }
 
 func (client *Client) getHTML(year, day int) (*goquery.Selection, error) {
-	url := fmt.Sprintf("%s/%d/day/%d", baseURL, year, day)
-
-	req, err := http.NewRequest("GET", url, nil)
+	path := fmt.Sprintf("%d/day/%d", year, day)
+	
+	resp, err := client.get(path)
 	if err != nil {
 		return nil, err
 	}
-
-	resp, err := client.do(req)
-	if err != nil {
-		return nil, err
-	}
+	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
@@ -114,17 +110,13 @@ func (client *Client) getTestInput(html *goquery.Selection) string {
 }
 
 func (client *Client) getInput(year, day int) (string, error) {
-	url := fmt.Sprintf("%s/%d/day/%d/input", baseURL, year, day)
+	path := fmt.Sprintf("%d/day/%d/input", year, day)
 
-	req, err := http.NewRequest("GET", url, nil)
+	resp, err := client.get(path)
 	if err != nil {
-		return "", err
+		return "", nil
 	}
-
-	resp, err := client.do(req)
-	if err != nil {
-		return "", err
-	}
+	defer resp.Body.Close()
 
 	bytes, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -132,6 +124,25 @@ func (client *Client) getInput(year, day int) (string, error) {
 	}
 
 	return string(bytes), err
+}
+
+func (client *Client) get(path string) (*http.Response, error) {
+	url := fmt.Sprintf("%s/%s", baseURL, path)
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := client.do(req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("got non-OK status for %s: %d", url, resp.StatusCode)
+	}
+
+	return resp, nil
 }
 
 func (client *Client) do(req *http.Request) (*http.Response, error) {
