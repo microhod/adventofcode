@@ -1,6 +1,6 @@
 module github.com/microhod/adventofcode
 
-go 1.17
+go 1.19
 
 require (
 	github.com/JohannesKaufmann/html-to-markdown v1.3.0
@@ -8,6 +8,7 @@ require (
 	github.com/deckarep/golang-set v1.7.1
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
 	github.com/moul/sapin v1.1.0
+	golang.org/x/sync v0.1.0
 )
 
 require (
