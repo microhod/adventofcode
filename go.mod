@@ -18,4 +18,5 @@ require (
 	github.com/smartystreets/goconvey v1.7.2 // indirect
 	golang.org/x/net v0.0.0-20200320220750-118fecf932d8 // indirect
 	golang.org/x/sys v0.0.0-20210927094055-39ccf1dd6fa6 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
