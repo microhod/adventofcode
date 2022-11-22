@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -65,16 +66,20 @@ func main() {
 	fmt.Fprint(input, p.Input)
 
 	// test.txt
-	test, err := os.Create(fmt.Sprintf("%s/%s", folder(year, day), testFile))
-	if err != nil {
-		fail(err)
+	testFilePath := fmt.Sprintf("%s/%s", folder(year, day), testFile)
+	// only create test.txt if it doesn't already exist
+	if !exists(testFilePath) {
+		test, err := os.Create(testFilePath)
+		if err != nil {
+			fail(err)
+		}
+		fmt.Fprintln(test, p.TestInput)
 	}
-	fmt.Fprintln(test, p.TestInput)
 
 	// main.go
 	solutionPath := fmt.Sprintf("%s/%s", folder(year, day), solutionFile)
 	// only create main.go if it doesn't already exist
-    if _, err := os.Stat(solutionPath); os.IsNotExist(err) {
+	if !exists(solutionPath) {
 		main, err := os.Create(solutionPath)
 		if err != nil {
 			fail(err)
@@ -84,7 +89,12 @@ func main() {
 			fail(err)
 		}
 		fmt.Fprint(main, solution)
-    }
+	}
+}
+
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	return !errors.Is(err, os.ErrNotExist)
 }
 
 func fail(err error) {
