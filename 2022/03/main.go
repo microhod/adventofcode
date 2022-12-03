@@ -5,6 +5,7 @@ import (
 
 	"github.com/microhod/adventofcode/internal/file"
 	"github.com/microhod/adventofcode/internal/puzzle"
+	"github.com/microhod/adventofcode/internal/set"
 )
 
 const (
@@ -79,37 +80,26 @@ type Rucksack struct {
 }
 
 func (rs Rucksack) CommonItems() []rune {
-	set1 := Set{}
-	for _, r := range rs.Compartment1 {
-		set1.Add(r)
-	}
-	set2 := Set{}
-	for _, r := range rs.Compartment2 {
-		set2.Add(r)
-	}
-	
+	set1 := set.NewSet([]rune(rs.Compartment1)...)
+	set2 := set.NewSet([]rune(rs.Compartment2)...)
+
 	var common []rune
-	for r := range Intersect(set1, set2) {
+	for r := range set.Intersect(set1, set2) {
 		common = append(common, r)
 	}
 	return common
 }
 
 func Common(rucksacks ...Rucksack) []rune {
-	var sets []Set
+	var sets []set.Set[rune]
+
 	for _, rs := range rucksacks {
-		set := Set{}
-		for _, r := range rs.Compartment1 {
-			set.Add(r)
-		}
-		for _, r := range rs.Compartment2 {
-			set.Add(r)
-		}
+		set := set.NewSet([]rune(rs.Compartment1+rs.Compartment2)...)
 		sets = append(sets, set)
 	}
 
 	var common []rune
-	for r := range Intersect(sets...) {
+	for r := range set.Intersect(sets...) {
 		common = append(common, r)
 	}
 
@@ -124,38 +114,4 @@ func priority(r rune) int {
 		return int(r-'A') + 27
 	}
 	panic(fmt.Errorf("invalid rune: %s", string(r)))
-}
-
-type Set map[rune]bool
-
-func (s Set) Add(r rune) {
-	s[r] = true
-}
-
-func Intersect(sets ...Set) Set {
-	intersection := Set{}
-	for r := range Union(sets...) {
-		if AllContain(r, sets...) {
-			intersection.Add(r)
-		}
-	}
-	return intersection
-}
-
-func Union(sets ...Set) Set {
-	union := Set{}
-	for _, s := range sets {
-		for r := range s {
-			union.Add(r)
-		}
-	}
-	return union
-}
-
-func AllContain(key rune, sets ...Set) bool {
-	contains := true 
-	for _, s := range sets {
-		contains = contains && s[key]
-	}
-	return contains
 }
