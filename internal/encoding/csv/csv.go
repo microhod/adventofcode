@@ -6,9 +6,13 @@ import (
 	"strings"
 )
 
-func ParseInts(str string) ([]int, error) {
+func ParseInts(str string, separator ...string) ([]int, error) {
+	if len(separator) < 1 {
+		separator = []string{","}
+	}
+
 	nums := []int{}
-	for _, s := range strings.Split(str, ",") {
+	for _, s := range strings.Split(str, separator[0]) {
 		n, err := strconv.Atoi(s)
 		if err != nil {
 			return nil, err
