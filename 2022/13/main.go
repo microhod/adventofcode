@@ -28,7 +28,12 @@ func part1() error {
 
 	var rightOrderIndexSum int
 	for index, pair := range pairs {
-		if InOrder(pair[0], pair[1]) == RightOrder {
+		less, err := pair[0].LessThan(pair[1])
+		if err != nil {
+			return err
+		}
+
+		if less {
 			rightOrderIndexSum += index + 1
 		}
 	}
@@ -43,17 +48,22 @@ func part2() error {
 		return err
 	}
 
-	dividerPackets := []string{"[[2]]","[[6]]"}
+	dividerPackets := []Packet{"[[2]]", "[[6]]"}
 	packets = append(packets, dividerPackets...)
 
 	sort.Slice(packets, func(i, j int) bool {
-		return LessThan(packets[i], packets[j])
+		less, err := packets[i].LessThan(packets[j])
+		if err != nil {
+			// we kind of have to panic here
+			panic(err)
+		}
+		return less
 	})
 
 	decoderKey := 1
 	for index, packet := range packets {
 		if packet == dividerPackets[0] || packet == dividerPackets[1] {
-			decoderKey *= index+1
+			decoderKey *= index + 1
 		}
 	}
 
@@ -61,103 +71,117 @@ func part2() error {
 	return nil
 }
 
-func parse(path string) ([][2]string, []string, error) {
+func parse(path string) ([][2]Packet, []Packet, error) {
 	data, err := file.ReadBytes(path)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	var pairs [][2]string
-	var packets []string
+	var pairs [][2]Packet
+	var packets []Packet
 
 	for _, section := range strings.Split(string(data), "\n\n") {
 		section := strings.TrimSpace(section)
 		lines := strings.Split(section, "\n")
 
-		pairs = append(pairs, [2]string{lines[0], lines[1]})
-		packets = append(packets, lines[0], lines[1])
+		pairs = append(pairs, [2]Packet{Packet(lines[0]), Packet(lines[1])})
+		packets = append(packets, Packet(lines[0]), Packet(lines[1]))
 	}
 
 	return pairs, packets, nil
 }
 
-type OrderState string
+type Packet string
 
-const (
-	UndecidedOrder OrderState = "undecided"
-	RightOrder     OrderState = "right"
-	WrongOrder     OrderState = "wrong"
-)
-
-func LessThan(packet1, packet2 string) bool {
-	order := InOrder(packet1, packet2)
+func (p Packet) LessThan(q Packet) (bool, error) {
+	order, err := packetsInOrder(p, q)
+	if err != nil {
+		return false, fmt.Errorf("failed to check order: %w", err)
+	}
 
 	// the order should never be undecided
-	if order == UndecidedOrder {
+	if order == undecidedPacketOrder {
 		panic("undecided order")
 	}
-	return order == RightOrder
+	return order == rightPacketOrder, nil
 }
 
-func InOrder(left, right string) OrderState {
-	leftNum, err := strconv.Atoi(left)
+type packetOrder string
+
+const (
+	undecidedPacketOrder packetOrder = "undecided"
+	rightPacketOrder     packetOrder = "right"
+	wrongPacketOrder     packetOrder = "wrong"
+)
+
+func packetsInOrder(left, right Packet) (packetOrder, error) {
+	leftNum, err := strconv.Atoi(string(left))
 	isLeftNum := err == nil
-	rightNum, err := strconv.Atoi(right)
+	rightNum, err := strconv.Atoi(string(right))
 	isRightNum := err == nil
 
 	if isLeftNum && isRightNum {
 		if leftNum < rightNum {
-			return RightOrder
+			return rightPacketOrder, nil
 		}
 		if leftNum > rightNum {
-			return WrongOrder
+			return wrongPacketOrder, nil
 		}
-		return UndecidedOrder
+		return undecidedPacketOrder, nil
 	}
 	if isLeftNum && !isRightNum {
-		left = fmt.Sprintf("[%s]", left)
+		left = Packet(fmt.Sprintf("[%s]", left))
 	}
 	if !isLeftNum && isRightNum {
-		right = fmt.Sprintf("[%s]", right)
+		right = Packet(fmt.Sprintf("[%s]", right))
 	}
 
-	leftList := SplitList(left)
-	rightList := SplitList(right)
+	leftPackets, err := left.split()
+	if err != nil {
+		return undecidedPacketOrder, err
+	}
+	rightPackets, err := right.split()
+	if err != nil {
+		return undecidedPacketOrder, err
+	}
 
-	for i := 0; i < max(len(leftList), len(rightList)); i++ {
-		if i > len(leftList)-1 {
-			return RightOrder
+	for i := 0; i < max(len(leftPackets), len(rightPackets)); i++ {
+		if i > len(leftPackets)-1 {
+			return rightPacketOrder, nil
 		}
-		if i > len(rightList)-1 {
-			return WrongOrder
+		if i > len(rightPackets)-1 {
+			return wrongPacketOrder, nil
 		}
 
-		order := InOrder(leftList[i], rightList[i])
-		if order != UndecidedOrder {
-			return order
+		order, err := packetsInOrder(leftPackets[i], rightPackets[i])
+		if err != nil {
+			return undecidedPacketOrder, err
+		}
+		if order != undecidedPacketOrder {
+			return order, nil
 		}
 	}
-	return UndecidedOrder
+	return undecidedPacketOrder, nil
 }
 
-func SplitList(str string) []string {
+func (p Packet) split() ([]Packet, error) {
 	var parts []interface{}
-	err := json.Unmarshal([]byte(str), &parts)
+	err := json.Unmarshal([]byte(p), &parts)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("malformed list package: %w", err)
 	}
 
-	var list []string
+	var list []Packet
 	for _, element := range parts {
 		marshalled, err := json.Marshal(element)
 		if err != nil {
-			panic(err)
+			return nil, fmt.Errorf("malformed list package element: %w", err)
 		}
 
-		list = append(list, string(marshalled))
+		list = append(list, Packet(marshalled))
 	}
 
-	return list
+	return list, nil
 }
 
 func max(a, b int) int {
