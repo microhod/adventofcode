@@ -1,10 +1,6 @@
 package graph
 
-import (
-	"math"
-
-	"github.com/microhod/adventofcode/internal/queue"
-)
+import "github.com/microhod/adventofcode/internal/queue"
 
 type Graph[T comparable] struct {
 	nodes []T
@@ -30,11 +26,9 @@ func (g *Graph[T]) AddEdge(u, v T, weight int) {
 	g.edges[u][v] = weight
 }
 
-// ShortestPath is an implementation of Dijkstra's Algorithm
-// https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
 func (g *Graph[T]) DijkstraShortestPath(start, target T) ([]T, bool) {
-	dist, previous := g.Dijkstra(start)
-	if dist[target] == math.MaxInt {
+	cost, cameFrom := g.Dijkstra(start)
+	if _, exists := cost[target]; !exists {
 		return nil, false
 	}
 
@@ -43,7 +37,7 @@ func (g *Graph[T]) DijkstraShortestPath(start, target T) ([]T, bool) {
 
 	for node != start {
 		path = append([]T{node}, path...)
-		node = previous[node]
+		node = cameFrom[node]
 	}
 
 	return append([]T{start}, path...), true
@@ -51,38 +45,31 @@ func (g *Graph[T]) DijkstraShortestPath(start, target T) ([]T, bool) {
 
 // Dijkstra is an implementation of Dijkstra's Algorithm
 // https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
+//
+// mainly implenented from this example:
+// https://www.redblobgames.com/pathfinding/a-star/introduction.html#greedy-best-first 
 func (g *Graph[T]) Dijkstra(start T) (map[T]int, map[T]T) {
-	distances := map[T]int{}
-	previous := map[T]T{}
-	unvisited := queue.NewPriorityQueue[T]()
+	frontier := queue.NewPriorityQueue[T]()
+	frontier.Put(start, 0)
 
-	// initialise
-	for _, node := range g.nodes {
-		distance := math.MaxInt
-		if node == start {
-			distance = 0
-		}
+	cameFrom := map[T]T{}
+	costSoFar := map[T]int{}
 
-		distances[node] = distance
-		unvisited.AddWithPriority(node, distance)
-	}
+	costSoFar[start] = 0
 
-	for !unvisited.Empty() {
-		u := unvisited.ExtractMin()
-		// give up once we get to a node with infinite distance
-		if distances[u] == math.MaxInt {
-			break
-		}
+	for frontier.Size() > 0 {
+		current := frontier.Get()
 
-		for v, dist := range g.edges[u] {
-			alt := distances[u] + dist
-			if alt < distances[v] {
-				distances[v] = alt
-				previous[v] = u
-				unvisited.DecreasePriority(v, alt)
+		for next, cost := range g.edges[current] {
+			newCost := costSoFar[current] + cost
+
+			if _, exists := costSoFar[next]; !exists || newCost < costSoFar[next] {
+				costSoFar[next] = newCost
+				frontier.Put(next, cost)
+				cameFrom[next] = current
 			}
 		}
 	}
 
-	return distances, previous
+	return costSoFar, cameFrom
 }

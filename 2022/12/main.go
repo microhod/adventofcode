@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math"
-	"sync"
 
 	"github.com/microhod/adventofcode/internal/file"
 	"github.com/microhod/adventofcode/internal/graph"
@@ -39,31 +38,20 @@ func part2() error {
 		return err
 	}
 
-	mu := &sync.Mutex{}
-	wg := &sync.WaitGroup{}
-
 	shortest := math.MaxInt
 	for start := range possibleStarts {
-		wg.Add(1)
-		go func(start string) {
-			defer wg.Done()
+		path, exists := graph.DijkstraShortestPath(start, end)
+		// skip starts which don't have a path to the end
+		if !exists {
+			continue
+		}
 
-			path, exists := graph.DijkstraShortestPath(start, end)
-			// skip starts which don't have a path to the end
-			if !exists {
-				return
-			}
-
-			mu.Lock()
-			// the number of steps (we can skip the start as that's step 0)
-			if len(path)-1 < shortest {
-				shortest = len(path) - 1
-			}
-			mu.Unlock()
-		}(start)
+		// the number of steps (we can skip the start as that's step 0)
+		if len(path)-1 < shortest {
+			shortest = len(path) - 1
+		}
 	}
 
-	wg.Wait()
 	fmt.Println(shortest)
 	return nil
 }

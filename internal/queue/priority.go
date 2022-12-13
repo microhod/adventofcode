@@ -13,32 +13,31 @@ func NewPriorityQueue[T comparable]() *PriorityQueue[T] {
 	}
 }
 
-func (queue *PriorityQueue[T]) ExtractMin() T {
+func (queue *PriorityQueue[T]) Get() T {
 	var item T
 	if len(queue.queue) < 1 {
 		return item
 	}
 
 	queue.sort()
-
 	item = queue.queue[0]
-	queue.queue = queue.queue[1:]
+
+	// remove item from queue
 	delete(queue.priorities, item)
+	queue.queue = queue.queue[1:]
 
 	return item
 }
 
-func (queue *PriorityQueue[T]) Empty() bool {
-	return len(queue.queue) == 0
-}
-
-func (queue *PriorityQueue[T]) AddWithPriority(item T, priority int) {
-	queue.queue = append(queue.queue, item)
+func (queue *PriorityQueue[T]) Put(item T, priority int) {
+	if _, exists := queue.priorities[item]; !exists {
+		queue.queue = append(queue.queue, item)
+	}
 	queue.priorities[item] = priority
 }
 
-func (queue *PriorityQueue[T]) DecreasePriority(item T, priority int) {
-	queue.priorities[item] = priority
+func (queue *PriorityQueue[T]) Size() int {
+	return len(queue.queue)
 }
 
 func (queue *PriorityQueue[T]) sort() {
