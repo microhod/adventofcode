@@ -39,7 +39,7 @@ func part2() error {
 		return err
 	}
 
-	shortestMu := &sync.RWMutex{}
+	mu := &sync.Mutex{}
 	wg := &sync.WaitGroup{}
 
 	shortest := math.MaxInt
@@ -54,12 +54,12 @@ func part2() error {
 				return
 			}
 
-			shortestMu.Lock()
+			mu.Lock()
 			// the number of steps (we can skip the start as that's step 0)
 			if len(path)-1 < shortest {
 				shortest = len(path) - 1
 			}
-			shortestMu.Unlock()
+			mu.Unlock()
 		}(start)
 	}
 
