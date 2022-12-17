@@ -1,35 +1,31 @@
 package graph
 
-import "github.com/microhod/adventofcode/internal/queue"
+import (
+	"fmt"
+	"regexp"
+	"strings"
 
-type Graph[T comparable] struct {
-	nodes []T
-	edges map[T]map[T]int
+	"github.com/microhod/adventofcode/internal/queue"
+)
+
+type Graph[T comparable] map[T]map[T]int
+
+func NewGraph[T comparable]() Graph[T] {
+	return Graph[T]{}
 }
 
-func NewGraph[T comparable]() *Graph[T] {
-	return &Graph[T]{
-		edges: map[T]map[T]int{},
-	}
-}
-
-func (g *Graph[T]) AddNode(node T) {
-	g.nodes = append(g.nodes, node)
-	g.edges[node] = map[T]int{}
-}
-
-func (g *Graph[T]) AddEdge(u, v T, weight int) {
-	if g.edges[u] == nil {
-		g.edges[u] = map[T]int{}
+func (g Graph[T]) AddEdge(u, v T, weight int) {
+	if g[u] == nil {
+		g[u] = map[T]int{}
 	}
 
-	g.edges[u][v] = weight
+	g[u][v] = weight
 }
 
-func (g *Graph[T]) DijkstraShortestPath(start, target T) ([]T, bool) {
+func (g Graph[T]) DijkstraShortestPath(start, target T) ([]T, int, bool) {
 	cost, cameFrom := g.Dijkstra(start)
 	if _, exists := cost[target]; !exists {
-		return nil, false
+		return nil, 0, false
 	}
 
 	var path []T
@@ -40,15 +36,15 @@ func (g *Graph[T]) DijkstraShortestPath(start, target T) ([]T, bool) {
 		node = cameFrom[node]
 	}
 
-	return append([]T{start}, path...), true
+	return append([]T{start}, path...), cost[target], true
 }
 
 // Dijkstra is an implementation of Dijkstra's Algorithm
 // https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
 //
 // mainly implenented from this example:
-// https://www.redblobgames.com/pathfinding/a-star/introduction.html#greedy-best-first 
-func (g *Graph[T]) Dijkstra(start T) (map[T]int, map[T]T) {
+// https://www.redblobgames.com/pathfinding/a-star/introduction.html#greedy-best-first
+func (g Graph[T]) Dijkstra(start T) (map[T]int, map[T]T) {
 	frontier := queue.NewPriorityQueue[T]()
 	frontier.Put(start, 0)
 
@@ -60,7 +56,7 @@ func (g *Graph[T]) Dijkstra(start T) (map[T]int, map[T]T) {
 	for frontier.Size() > 0 {
 		current := frontier.Get()
 
-		for next, cost := range g.edges[current] {
+		for next, cost := range g[current] {
 			newCost := costSoFar[current] + cost
 
 			if _, exists := costSoFar[next]; !exists || newCost < costSoFar[next] {
@@ -72,4 +68,24 @@ func (g *Graph[T]) Dijkstra(start T) (map[T]int, map[T]T) {
 	}
 
 	return costSoFar, cameFrom
+}
+
+func (g Graph[T]) Mermaid() string {
+	builder := &strings.Builder{}
+	builder.WriteString("graph LR")
+
+	label := func(node T) string {
+		l := fmt.Sprint(node)
+		// mermaid labels cannot contain whitespace
+		l = regexp.MustCompile(`\s+`).ReplaceAllString(l, "")
+		return l
+	}
+
+	for from := range g {
+		for to, weight := range g[from] {
+			edge := fmt.Sprintf("\n  %s --%d--> %s", label(from), weight, label(to))
+			builder.WriteString(edge)
+		}
+	}
+	return builder.String()
 }

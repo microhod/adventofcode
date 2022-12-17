@@ -3,20 +3,18 @@ package file
 
 import (
 	"bufio"
-	"io"
 	"os"
 
 	"github.com/microhod/adventofcode/internal/encoding/csv"
 )
 
-func ReadBytes(path string) ([]byte, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
+func Read(path string) (string, error) {
+	b, err := ReadBytes(path)
+	return string(b), err
+}
 
-	return io.ReadAll(file)
+func ReadBytes(path string) ([]byte, error) {
+	return os.ReadFile(path)
 }
 
 func ReadLines(path string) ([]string, error) {

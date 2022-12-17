@@ -25,7 +25,7 @@ func part1() error {
 		return err
 	}
 
-	path, _ := graph.DijkstraShortestPath(start, end)
+	path, _, _ := graph.DijkstraShortestPath(start, end)
 
 	// print the number of steps (we can skip the start as that's step 0)
 	fmt.Println(len(path) - 1)
@@ -40,7 +40,7 @@ func part2() error {
 
 	shortest := math.MaxInt
 	for start := range possibleStarts {
-		path, exists := graph.DijkstraShortestPath(start, end)
+		path, _, exists := graph.DijkstraShortestPath(start, end)
 		// skip starts which don't have a path to the end
 		if !exists {
 			continue
@@ -56,7 +56,7 @@ func part2() error {
 	return nil
 }
 
-func parse(path string) (*graph.Graph[string], string, set.Set[string], string, error) {
+func parse(path string) (graph.Graph[string], string, set.Set[string], string, error) {
 	lines, err := file.ReadLines(path)
 	if err != nil {
 		return nil, "", nil, "", err
@@ -82,8 +82,6 @@ func parse(path string) (*graph.Graph[string], string, set.Set[string], string, 
 			if ch == 'E' {
 				end = node
 			}
-
-			g.AddNode(node)
 
 			if i > 0 {
 				otherLetter := parseLetter(rune(lines[i-1][j]))
@@ -120,7 +118,7 @@ func nodeName(i, j int, letter int) string {
 	return fmt.Sprintf("(%d,%d)=%s", i, j, string(rune(letter)))
 }
 
-func addEdge(g *graph.Graph[string], letter1, letter2 int, node1, node2 string) {
+func addEdge(g graph.Graph[string], letter1, letter2 int, node1, node2 string) {
 	if letter2 <= letter1+1 {
 		g.AddEdge(node1, node2, 1)
 	}
