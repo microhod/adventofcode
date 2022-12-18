@@ -42,3 +42,19 @@ func Abs[T RealNumber](num T) T {
 	}
 	return num
 }
+
+func Mod(d, m int) int {
+	var res int = d % m
+	if (res < 0 && m > 0) || (res > 0 && m < 0) {
+		return res + m
+	}
+	return res
+}
+
+func Sum[T RealNumber](nums ...T) T {
+	var sum T
+	for _, n := range nums {
+		sum += n
+	}
+	return sum
+}
