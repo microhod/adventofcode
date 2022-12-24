@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/microhod/adventofcode/internal/file"
+	"github.com/microhod/adventofcode/internal/geometry/plane"
 	"github.com/microhod/adventofcode/internal/puzzle"
 	"github.com/microhod/adventofcode/internal/set"
 )
@@ -26,10 +27,10 @@ func part1() error {
 	}
 
 	rope := &Rope{
-		Head:  Vector{},
-		Tails: make([]Vector, 1),
+		Head:  plane.Vector{},
+		Tails: make([]plane.Vector, 1),
 	}
-	visited := set.NewSet[Vector]()
+	visited := set.NewSet[plane.Vector]()
 
 	for _, move := range moves {
 		rope.MoveHead(move)
@@ -47,10 +48,10 @@ func part2() error {
 	}
 
 	rope := &Rope{
-		Head:  Vector{},
-		Tails: make([]Vector, 9),
+		Head:  plane.Vector{},
+		Tails: make([]plane.Vector, 9),
 	}
-	visited := set.NewSet[Vector]()
+	visited := set.NewSet[plane.Vector]()
 
 	for _, move := range moves {
 		rope.MoveHead(move)
@@ -61,20 +62,20 @@ func part2() error {
 	return nil
 }
 
-func parse(path string) ([]Vector, error) {
+func parse(path string) ([]plane.Vector, error) {
 	lines, err := file.ReadLines(path)
 	if err != nil {
 		return nil, err
 	}
 
-	vectors := map[string]Vector{
-		"L": {-1, 0},
-		"R": {1, 0},
-		"U": {0, 1},
-		"D": {0, -1},
+	vectors := map[string]plane.Vector{
+		"L": {X: -1, Y: 0},
+		"R": {X: 1, Y: 0},
+		"U": {X: 0, Y: 1},
+		"D": {X: 0, Y: -1},
 	}
 
-	var moves []Vector
+	var moves []plane.Vector
 	for _, line := range lines {
 		if line == "" {
 			continue
@@ -96,18 +97,18 @@ func parse(path string) ([]Vector, error) {
 }
 
 type Rope struct {
-	Head  Vector
-	Tails []Vector
+	Head  plane.Vector
+	Tails []plane.Vector
 }
 
-func (r *Rope) MoveHead(move Vector) {
+func (r *Rope) MoveHead(move plane.Vector) {
 	r.Head = r.Head.Add(move)
 
 	prev := r.Head
 	for i := range r.Tails {
 		diff := prev.Minus(r.Tails[i])
 
-		var tailMove Vector
+		var tailMove plane.Vector
 		if abs(diff.X) > 1 || abs(diff.Y) > 1 {
 			tailMove.X = diff.X
 			tailMove.Y = diff.Y
@@ -124,18 +125,6 @@ func (r *Rope) MoveHead(move Vector) {
 		r.Tails[i] = r.Tails[i].Add(tailMove)
 		prev = r.Tails[i]
 	}
-}
-
-type Vector struct {
-	X, Y int
-}
-
-func (v Vector) Add(w Vector) Vector {
-	return Vector{v.X + w.X, v.Y + w.Y}
-}
-
-func (v Vector) Minus(w Vector) Vector {
-	return Vector{v.X - w.X, v.Y - w.Y}
 }
 
 func abs(n int) int {

@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"github.com/microhod/adventofcode/internal/file"
+	"github.com/microhod/adventofcode/internal/geometry/plane"
 	"github.com/microhod/adventofcode/internal/maths"
 	"github.com/microhod/adventofcode/internal/puzzle"
 )
@@ -54,8 +55,8 @@ func parse(path string) (*Grove, error) {
 	}
 
 	grove := &Grove{
-		elves:      map[Vector]*Elf{},
-		directions: []Direction{North, South, West, East},
+		elves:      map[plane.Vector]*Elf{},
+		directions: []plane.Direction{plane.North, plane.South, plane.West, plane.East},
 	}
 	for y, line := range lines {
 		if line == "" {
@@ -68,15 +69,15 @@ func parse(path string) (*Grove, error) {
 			}
 
 			elf := Elf(len(grove.elves))
-			grove.elves[Vector{x, y}] = &elf
+			grove.elves[plane.Vector{X: x, Y: y}] = &elf
 		}
 	}
 	return grove, nil
 }
 
 type Grove struct {
-	elves      map[Vector]*Elf
-	directions []Direction
+	elves      map[plane.Vector]*Elf
+	directions []plane.Direction
 }
 
 // MoveEvles runs a round of elf movement and returns a boolean
@@ -103,8 +104,8 @@ func (g *Grove) MoveEvles() bool {
 	return true
 }
 
-func (g *Grove) proposeNextPositions() map[Vector][]Vector {
-	proposals := map[Vector][]Vector{}
+func (g *Grove) proposeNextPositions() map[plane.Vector][]plane.Vector {
+	proposals := map[plane.Vector][]plane.Vector{}
 	for position := range g.elves {
 		next := g.proposeNextPosition(position)
 		if next != position {
@@ -114,21 +115,21 @@ func (g *Grove) proposeNextPositions() map[Vector][]Vector {
 	return proposals
 }
 
-func (g *Grove) proposeNextPosition(current Vector) Vector {
+func (g *Grove) proposeNextPosition(current plane.Vector) plane.Vector {
 	neighbours := current.Neighbours()
 
-	var proposals []Vector
+	var proposals []plane.Vector
 
 	for _, direction := range g.directions {
-		previousDiagonal := Direction(maths.Mod(int(direction)-1, 8))
-		nextDiagonal := Direction(maths.Mod(int(direction)+1, 8))
+		previousDiagonal := plane.Direction(maths.Mod(int(direction)-1, 8))
+		nextDiagonal := plane.Direction(maths.Mod(int(direction)+1, 8))
 
 		noElves := g.elves[neighbours[direction]] == nil
 		noElves = noElves && g.elves[neighbours[previousDiagonal]] == nil
 		noElves = noElves && g.elves[neighbours[nextDiagonal]] == nil
 
 		if noElves {
-			proposals = append(proposals, current.Add(DirectionToVector[direction]))
+			proposals = append(proposals, current.Add(plane.DirectionToVector[direction]))
 		}
 	}
 
@@ -166,46 +167,3 @@ func (g *Grove) EmptySpaces() int {
 }
 
 type Elf int
-
-type Vector struct {
-	X, Y int
-}
-
-func (v Vector) Add(u Vector) Vector {
-	return Vector{v.X + u.X, v.Y + u.Y}
-}
-
-type Direction int
-
-const (
-	North     Direction = 0
-	NorthEast Direction = 1
-	East      Direction = 2
-	SouthEast Direction = 3
-	South     Direction = 4
-	SouthWest Direction = 5
-	West      Direction = 6
-	NorthWest Direction = 7
-)
-
-// 7 0 1
-// 6   2
-// 5 4 3
-var DirectionToVector = map[Direction]Vector{
-	North:     {0, -1},
-	NorthEast: {1, -1},
-	East:      {1, 0},
-	SouthEast: {1, 1},
-	South:     {0, 1},
-	SouthWest: {-1, 1},
-	West:      {-1, 0},
-	NorthWest: {-1, -1},
-}
-
-func (v Vector) Neighbours() map[Direction]Vector {
-	neighbours := map[Direction]Vector{}
-	for direction, diff := range DirectionToVector {
-		neighbours[direction] = v.Add(diff)
-	}
-	return neighbours
-}

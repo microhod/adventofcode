@@ -7,6 +7,7 @@ import (
 
 	"github.com/microhod/adventofcode/internal/encoding/csv"
 	"github.com/microhod/adventofcode/internal/file"
+	"github.com/microhod/adventofcode/internal/geometry/plane"
 	"github.com/microhod/adventofcode/internal/maths"
 	"github.com/microhod/adventofcode/internal/puzzle"
 )
@@ -37,10 +38,10 @@ func part1() error {
 
 	var distressNotHere int
 	for x := minX; x <= maxX; x++ {
-		distress := Vector{x, y}
+		distress := plane.Vector{X: x, Y: y}
 
 		for _, sensor := range sensors {
-			if sensor.CanDetect(distress) && !distress.Equals(sensor.NearestBeacon) {
+			if sensor.CanDetect(distress) && distress != sensor.NearestBeacon {
 				distressNotHere += 1
 				break
 			}
@@ -79,7 +80,7 @@ func part2() error {
 		// if we have any ranges after minusing all the beacon detection ranges,
 		// we have found the distress beacon!
 		if len(possibleDistressBeacons) > 0 {
-			distressSignal := Vector{
+			distressSignal := plane.Vector{
 				X: possibleDistressBeacons[0].Left,
 				Y: y,
 			}
@@ -113,12 +114,12 @@ func parse(path string) ([]Sensor, error) {
 			return nil, err
 		}
 
-		sensorOrigin := Vector{X: nums[0], Y: nums[1]}
-		nearestBeacon := Vector{X: nums[2], Y: nums[3]}
+		sensorOrigin := plane.Vector{X: nums[0], Y: nums[1]}
+		nearestBeacon := plane.Vector{X: nums[2], Y: nums[3]}
 
 		sensors = append(sensors, Sensor{
 			Origin:        sensorOrigin,
-			Radius:        ManhattanDistance(sensorOrigin, nearestBeacon),
+			Radius:        plane.ManhattanMetric(sensorOrigin, nearestBeacon),
 			NearestBeacon: nearestBeacon,
 		})
 	}
@@ -127,13 +128,13 @@ func parse(path string) ([]Sensor, error) {
 }
 
 type Sensor struct {
-	Origin        Vector
+	Origin        plane.Vector
 	Radius        int
-	NearestBeacon Vector
+	NearestBeacon plane.Vector
 }
 
-func (s Sensor) CanDetect(v Vector) bool {
-	return ManhattanDistance(s.Origin, v) <= s.Radius
+func (s Sensor) CanDetect(v plane.Vector) bool {
+	return plane.ManhattanMetric(s.Origin, v) <= s.Radius
 }
 
 func (s Sensor) DetectionAreaCrossSection(y int) *Range {
@@ -148,18 +149,6 @@ func (s Sensor) DetectionAreaCrossSection(y int) *Range {
 		Left:  s.Origin.X - (s.Radius - offset),
 		Right: s.Origin.X + (s.Radius - offset),
 	}
-}
-
-type Vector struct {
-	X, Y int
-}
-
-func (v Vector) Equals(u Vector) bool {
-	return v.X == u.X && v.Y == u.Y
-}
-
-func ManhattanDistance(u Vector, v Vector) int {
-	return maths.Abs(u.X-v.X) + maths.Abs(u.Y-v.Y)
 }
 
 type Range struct {
