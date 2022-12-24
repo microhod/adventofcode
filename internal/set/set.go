@@ -26,6 +26,14 @@ func (s Set[T]) Contains(v T) bool {
 	return s[v]
 }
 
+func (s Set[T]) ToSlice() []T {
+	var slice []T
+	for v := range s {
+		slice = append(slice, v)
+	}
+	return slice
+}
+
 func Union[T comparable](sets ...Set[T]) Set[T] {
 	union := Set[T]{}
 	for _, s := range sets {
