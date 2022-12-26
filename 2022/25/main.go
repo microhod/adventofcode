@@ -33,6 +33,7 @@ func part1() error {
 }
 
 func part2() error {
+	fmt.Println("no part 2 today, it's Christmas! 🎄")
 	return nil
 }
 
