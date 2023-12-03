@@ -46,7 +46,7 @@ func (g Graph[T]) DijkstraShortestPath(start, target T) ([]T, int, bool) {
 // https://www.redblobgames.com/pathfinding/a-star/introduction.html#greedy-best-first
 func (g Graph[T]) Dijkstra(start T) (map[T]int, map[T]T) {
 	frontier := queue.NewPriorityQueue[T]()
-	frontier.Put(start, 0)
+	frontier.Push(start, 0)
 
 	cameFrom := map[T]T{}
 	costSoFar := map[T]int{}
@@ -54,14 +54,14 @@ func (g Graph[T]) Dijkstra(start T) (map[T]int, map[T]T) {
 	costSoFar[start] = 0
 
 	for frontier.Size() > 0 {
-		current := frontier.Get()
+		current := frontier.Pop()
 
 		for next, cost := range g[current] {
 			newCost := costSoFar[current] + cost
 
 			if _, exists := costSoFar[next]; !exists || newCost < costSoFar[next] {
 				costSoFar[next] = newCost
-				frontier.Put(next, cost)
+				frontier.Push(next, cost)
 				cameFrom[next] = current
 			}
 		}

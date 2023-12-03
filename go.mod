@@ -14,6 +14,7 @@ require (
 )
 
 require (
+	github.com/agnivade/levenshtein v1.1.1
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
