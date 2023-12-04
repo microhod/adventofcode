@@ -13,6 +13,11 @@ func ParseInts(str string, separator ...string) ([]int, error) {
 
 	nums := []int{}
 	for _, s := range strings.Split(str, separator[0]) {
+		s = strings.TrimSpace(s)
+		if s == "" {
+			continue
+		}
+
 		n, err := strconv.Atoi(s)
 		if err != nil {
 			return nil, err
