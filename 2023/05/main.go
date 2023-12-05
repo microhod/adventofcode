@@ -40,9 +40,9 @@ func part2() error {
 		return err
 	}
 
-	var seedRanges []Range
+	var seedRanges []maths.Range
 	for i := 0; i < len(seeds)-1; i += 2 {
-		seedRanges = append(seedRanges, Range{
+		seedRanges = append(seedRanges, maths.Range{
 			Left: seeds[i],
 			Right: seeds[i] + seeds[i+1] - 1},
 		)
@@ -95,11 +95,11 @@ func parseMap(input string) (string, AlmanacMap, error) {
 		if err != nil {
 			return "", AlmanacMap{}, err
 		}
-		mapping.DstRanges = append(mapping.DstRanges, Range{
+		mapping.DstRanges = append(mapping.DstRanges, maths.Range{
 			Left: nums[0], Right: nums[0] + nums[2],
 		})
-		mapping.SrcRanges = append(mapping.SrcRanges, Range{
-			nums[1], nums[1] + nums[2],
+		mapping.SrcRanges = append(mapping.SrcRanges, maths.Range{
+			Left: nums[1], Right: nums[1] + nums[2],
 		})
 	}
 	return name, mapping, nil
@@ -117,7 +117,7 @@ func (a Almanac) SeedToLocation(input int) int {
 	return a["humidity-to-location"].Dst(input)
 }
 
-func (a Almanac) SeedRangesToLocations(input []Range) []Range {
+func (a Almanac) SeedRangesToLocations(input []maths.Range) []maths.Range {
 	input = a["seed-to-soil"].DstRange(input)
 	input = a["soil-to-fertilizer"].DstRange(input)
 	input = a["fertilizer-to-water"].DstRange(input)
@@ -129,13 +129,13 @@ func (a Almanac) SeedRangesToLocations(input []Range) []Range {
 }
 
 type AlmanacMap struct {
-	SrcRanges []Range
-	DstRanges []Range
+	SrcRanges []maths.Range
+	DstRanges []maths.Range
 }
 
 func (m AlmanacMap) Dst(src int) int {
 	for i, s := range m.SrcRanges {
-		if s.Contains(src) {
+		if s.ContainsValue(src) {
 			offset := src - s.Left
 			return m.DstRanges[i].Left + offset
 		}
@@ -143,8 +143,8 @@ func (m AlmanacMap) Dst(src int) int {
 	return src
 }
 
-func (m AlmanacMap) DstRange(inputs []Range) []Range {
-	var destinations []Range
+func (m AlmanacMap) DstRange(inputs []maths.Range) []maths.Range {
+	var destinations []maths.Range
 
 	for i := range m.SrcRanges {
 		src := m.SrcRanges[i]
@@ -164,7 +164,7 @@ func (m AlmanacMap) DstRange(inputs []Range) []Range {
 			}
 
 			// compute the destination range of the intersection
-			destinations = append(destinations, Range{
+			destinations = append(destinations, maths.Range{
 				Left:  intersection.Left + dst.Left - src.Left,
 				Right: intersection.Right + dst.Right - src.Right,
 			})
@@ -175,76 +175,4 @@ func (m AlmanacMap) DstRange(inputs []Range) []Range {
 	// all remaining inputs have no destination mapping
 	// which means they are mapped to themselves
 	return append(destinations, inputs...)
-}
-
-type Range struct {
-	Left, Right int
-}
-
-func (r Range) Contains(n int) bool {
-	return n >= r.Left && n <= r.Right
-}
-
-func (r Range) ContainsRange(s Range) bool {
-	return s.Left >= r.Left && s.Right <= r.Right
-}
-
-func (r Range) Intersect(s Range) Range {
-	return Range{maths.Max(r.Left, s.Left), maths.Min(r.Right, s.Right)}
-}
-
-func (r Range) Valid() bool {
-	return r.Left <= r.Right
-}
-
-func (r Range) Diff(remove Range) []Range {
-	// distinct
-	// [ r ]
-	//        [ remove ]
-	if remove.Right < r.Left || remove.Left > r.Right {
-		return []Range{r}
-	}
-	// remove contains r
-	//   [-r-]
-	// [ remove ]
-	if remove.Left <= r.Left && remove.Right >= r.Right {
-		return nil
-	}
-	// r contains remove
-	// [  |-----r----|  ]
-	//     [ remove ]
-	if r.Left <= remove.Left && r.Right >= remove.Right {
-		// split into two ranges
-		var split []Range
-
-		if r.Left < remove.Left {
-			split = append(split, Range{
-				Left:  r.Left,
-				Right: remove.Left - 1,
-			})
-		}
-		if r.Right > remove.Right {
-			split = append(split, Range{
-				Left:  remove.Right + 1,
-				Right: r.Right,
-			})
-		}
-		return split
-	}
-	// trim right
-	// [  |---r---]
-	//     [ remove ]
-	if r.Left < remove.Left {
-		return []Range{{
-			Left:  r.Left,
-			Right: remove.Left - 1,
-		}}
-	}
-	// trim left
-	//      [----| r   ]
-	// [ remove ]
-	return []Range{{
-		Left:  remove.Right + 1,
-		Right: r.Right,
-	}}
 }

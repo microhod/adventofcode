@@ -61,7 +61,7 @@ func part2() error {
 	limit := 4000000
 
 	for y := 0; y <= limit; y++ {
-		possibleDistressBeacons := []Range{{Left: 0, Right: limit}}
+		possibleDistressBeacons := []maths.Range{{Left: 0, Right: limit}}
 
 		for _, sensor := range sensors {
 			sensorDetection := sensor.DetectionAreaCrossSection(y)
@@ -70,7 +70,7 @@ func part2() error {
 			}
 
 			// remove any ranges the sensors would have already detected
-			var outOfDetection []Range
+			var outOfDetection []maths.Range
 			for _, r := range possibleDistressBeacons {
 				outOfDetection = append(outOfDetection, r.Diff(*sensorDetection)...)
 			}
@@ -137,7 +137,7 @@ func (s Sensor) CanDetect(v plane.Vector) bool {
 	return plane.ManhattanMetric(s.Origin, v) <= s.Radius
 }
 
-func (s Sensor) DetectionAreaCrossSection(y int) *Range {
+func (s Sensor) DetectionAreaCrossSection(y int) *maths.Range {
 	if y > s.Origin.Y+s.Radius || y < s.Origin.Y-s.Radius {
 		// outside this sensor's detection area
 		return nil
@@ -145,65 +145,8 @@ func (s Sensor) DetectionAreaCrossSection(y int) *Range {
 
 	offset := maths.Abs(s.Origin.Y - y)
 
-	return &Range{
+	return &maths.Range{
 		Left:  s.Origin.X - (s.Radius - offset),
 		Right: s.Origin.X + (s.Radius - offset),
 	}
-}
-
-type Range struct {
-	Left  int
-	Right int
-}
-
-func (r Range) Diff(remove Range) []Range {
-	// distinct
-	// [ r ]
-	//        [ remove ]
-	if remove.Right < r.Left || remove.Left > r.Right {
-		return []Range{r}
-	}
-	// remove contains r
-	//   [-r-]
-	// [ remove ]
-	if remove.Left <= r.Left && remove.Right >= r.Right {
-		return nil
-	}
-	// r contains remove
-	// [  |-----r----|  ]
-	//     [ remove ]
-	if r.Left <= remove.Left && r.Right >= remove.Right {
-		// split into two ranges
-		var split []Range
-
-		if r.Left < remove.Left {
-			split = append(split, Range{
-				Left:  r.Left,
-				Right: remove.Left - 1,
-			})
-		}
-		if r.Right > remove.Right {
-			split = append(split, Range{
-				Left:  remove.Right + 1,
-				Right: r.Right,
-			})
-		}
-		return split
-	}
-	// trim right
-	// [  |---r---]
-	//     [ remove ]
-	if r.Left < remove.Left {
-		return []Range{{
-			Left:  r.Left,
-			Right: remove.Left - 1,
-		}}
-	}
-	// trim left
-	//      [----| r   ]
-	// [ remove ]
-	return []Range{{
-		Left:  remove.Right + 1,
-		Right: r.Right,
-	}}
 }
