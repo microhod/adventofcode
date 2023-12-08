@@ -58,3 +58,36 @@ func Sum[T RealNumber](nums ...T) T {
 	}
 	return sum
 }
+
+func gcd(a, b int) int {
+	for a != b {
+		if a > b {
+			a -= b
+		} else {
+			b -= a
+		}
+	}
+	return a
+}
+
+func Gcd(nums ...int) int {
+	// compute gcd iteratively and store in nums[0]
+	for len(nums) > 1 {
+		nums[1] = gcd(nums[0], nums[1])
+		nums = nums[1:]
+	}
+	return nums[0]
+}
+
+func Lcm(nums ...int) int {
+	// compute lcm iteratively and store in nums[0]
+	for len(nums) > 1 {
+		nums[1] = lcm(nums[0], nums[1])
+		nums = nums[1:]
+	}
+	return nums[0]
+}
+
+func lcm(a, b int) int {
+	return (a * b) / Gcd(a, b)
+}
