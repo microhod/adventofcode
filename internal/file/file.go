@@ -33,7 +33,7 @@ func ReadLines(path string) ([]string, error) {
 	return lines, nil
 }
 
-func ReadCsvInts(path string) ([]int, error) {
+func ReadCsvInts(path string, separator ...string) ([]int, error) {
 	lines, err := ReadLines(path)
 	if err != nil {
 		return nil, err
@@ -43,5 +43,23 @@ func ReadCsvInts(path string) ([]int, error) {
 		return []int{}, nil
 	}
 
-	return csv.ParseInts(lines[0])
+	return csv.ParseInts(lines[0], separator...)
+}
+
+func ReadAllCsvInts(path string, separator ...string) ([][]int, error) {
+	lines, err := ReadLines(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var nums [][]int
+	for _, line := range lines {
+		row, err := csv.ParseInts(line, separator...)
+		if err != nil {
+			return nil, err
+		}
+		nums = append(nums, row)
+	}
+
+	return nums, nil
 }
