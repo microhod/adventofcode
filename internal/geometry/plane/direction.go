@@ -1,5 +1,7 @@
 package plane
 
+import "github.com/microhod/adventofcode/internal/maths"
+
 type Direction int
 
 const (
@@ -15,6 +17,10 @@ const (
 
 func (d Direction) Orthogonal() bool {
 	return int(d) % 2 == 0
+}
+
+func (d Direction) Opposite() Direction {
+	return Direction(maths.Mod(int(d)+4, 8))
 }
 
 // 7 0 1

@@ -6,12 +6,21 @@ import (
 	"strings"
 
 	"github.com/microhod/adventofcode/internal/queue"
+	"github.com/microhod/adventofcode/internal/set"
 )
 
 type Graph[T comparable] map[T]map[T]int
 
 func NewGraph[T comparable]() Graph[T] {
 	return Graph[T]{}
+}
+
+func (g Graph[T]) Nodes() set.Set[T] {
+	nodes := set.NewSet[T]()
+	for n := range g {
+		nodes.Add(n)
+	}
+	return nodes
 }
 
 func (g Graph[T]) AddEdge(u, v T, weight int) {
