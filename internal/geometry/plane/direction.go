@@ -23,6 +23,12 @@ func (d Direction) Opposite() Direction {
 	return Direction(maths.Mod(int(d)+4, 8))
 }
 
+var directionNames = []string{"North", "NorthEast", "East", "SouthEast", "South", "SouthWest", "West", "NorthWest"}
+
+func (d Direction) String() string {
+	return directionNames[d]
+}
+
 // 7 0 1
 // 6   2
 // 5 4 3
