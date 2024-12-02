@@ -1,10 +1,11 @@
 module github.com/microhod/adventofcode
 
-go 1.19
+go 1.23.2
 
 require (
 	github.com/JohannesKaufmann/html-to-markdown v1.3.6
 	github.com/PuerkitoBio/goquery v1.8.0
+	github.com/agnivade/levenshtein v1.1.1
 	github.com/deckarep/golang-set v1.7.1
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
 	github.com/moul/sapin v1.1.0
@@ -14,7 +15,6 @@ require (
 )
 
 require (
-	github.com/agnivade/levenshtein v1.1.1
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
