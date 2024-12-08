@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/microhod/adventofcode/internal/encoding/csv"
+	"github.com/microhod/adventofcode/internal/geometry/plane"
 )
 
 func Read(path string) (string, error) {
@@ -62,4 +63,26 @@ func ReadAllCsvInts(path string, separator ...string) ([][]int, error) {
 	}
 
 	return nums, nil
+}
+
+func ReadVectors(path string, ch byte) ([]plane.Vector, plane.Vector, error) {
+	lines, err := ReadLines(path)
+	if err != nil {
+		return nil, plane.Vector{}, err
+	}
+
+	var (
+		vectors []plane.Vector
+		limit   plane.Vector
+	)
+	for y := range lines {
+		limit.Y = max(limit.Y, y)
+		for x := range lines[y] {
+			limit.X = max(limit.X, x)
+			if lines[y][x] == ch {
+				vectors = append(vectors, plane.Vector{X: x, Y: y})
+			}
+		}
+	}
+	return vectors, limit, nil
 }

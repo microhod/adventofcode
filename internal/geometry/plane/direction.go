@@ -1,6 +1,10 @@
 package plane
 
-import "github.com/microhod/adventofcode/internal/maths"
+import (
+	"fmt"
+
+	"github.com/microhod/adventofcode/internal/maths"
+)
 
 type Direction int
 
@@ -23,6 +27,15 @@ func (d Direction) Opposite() Direction {
 	return Direction(maths.Mod(int(d)+4, 8))
 }
 
+// Turn expects degrees to be multiple of 45. +ve means clockwise, -ve anti-clockwise
+func(d Direction) Turn(degrees int) Direction {
+	if degrees % 45 != 0 {
+		panic(fmt.Sprintf("turn: degress must be multiple of 45, got: %d", degrees))
+	}
+
+	return Direction(maths.Mod(int(d) + (degrees / 45), 8))
+}
+
 var directionNames = []string{"North", "NorthEast", "East", "SouthEast", "South", "SouthWest", "West", "NorthWest"}
 
 func (d Direction) String() string {
@@ -42,5 +55,3 @@ var DirectionToVector = map[Direction]Vector{
 	West:      {-1, 0},
 	NorthWest: {-1, -1},
 }
-
-
