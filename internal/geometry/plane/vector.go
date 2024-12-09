@@ -19,6 +19,10 @@ func (v Vector) Minus(u Vector) Vector {
 	return Vector{X: v.X - u.X, Y: v.Y - u.Y}
 }
 
+func (v Vector) Within(limit Vector) bool {
+	return v.X >= 0 && v.X <= limit.X && v.Y >= 0 && v.Y <= limit.Y
+}
+
 type Metric func(Vector, Vector) int
 
 func ManhattanMetric(v, u Vector) int {

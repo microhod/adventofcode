@@ -86,3 +86,23 @@ func ReadVectors(path string, ch byte) ([]plane.Vector, plane.Vector, error) {
 	}
 	return vectors, limit, nil
 }
+
+func ReadVectorsFunc(path string, f func(byte) bool) (map[byte][]plane.Vector, plane.Vector, error) {
+	lines, err := ReadLines(path)
+	if err != nil {
+		return nil, plane.Vector{}, err
+	}
+
+	vectors := make(map[byte][]plane.Vector)
+	var limit plane.Vector
+	for y := range lines {
+		limit.Y = max(limit.Y, y)
+		for x := range lines[y] {
+			limit.X = max(limit.X, x)
+			if f(lines[y][x]) {
+				vectors[lines[y][x]] = append(vectors[lines[y][x]], plane.Vector{X: x, Y: y})
+			}
+		}
+	}
+	return vectors, limit, nil
+}
