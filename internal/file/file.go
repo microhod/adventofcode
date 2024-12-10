@@ -106,3 +106,22 @@ func ReadVectorsFunc(path string, f func(byte) bool) (map[byte][]plane.Vector, p
 	}
 	return vectors, limit, nil
 }
+
+func ReadVectorMapFunc[T any](path string, f func(byte) (T, error)) (map[plane.Vector]T, error) {
+	lines, err := ReadLines(path)
+	if err != nil {
+		return nil, err
+	}
+
+	vectormap := make(map[plane.Vector]T)
+	for y := range lines {
+		for x := range lines[y] {
+			val, err := f(lines[y][x])
+			if err != nil {
+				return nil, err
+			}
+			vectormap[plane.Vector{X: x, Y: y}] = val
+		}
+	}
+	return vectormap, nil
+}
