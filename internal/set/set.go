@@ -26,6 +26,14 @@ func (s Set[T]) Contains(v T) bool {
 	return s[v]
 }
 
+func (s Set[T]) Pop() (T, bool) {
+	var zero T
+	for v := range s {
+		return v, true
+	}
+	return zero, false
+}
+
 func (s Set[T]) ToSlice() []T {
 	var slice []T
 	for v := range s {
@@ -60,4 +68,12 @@ func allContain[T comparable](key T, sets ...Set[T]) bool {
 		contains = contains && s[key]
 	}
 	return contains
+}
+
+func Diff[T comparable](s, t Set[T]) Set[T] {
+	diff := NewSet(s.ToSlice()...)
+	for v := range t {
+		diff.Remove(v)
+	}
+	return diff
 }

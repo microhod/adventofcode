@@ -15,8 +15,16 @@ func (v Vector) Add(u Vector) Vector {
 	return Vector{X: v.X + u.X, Y: v.Y + u.Y}
 }
 
+func (v Vector) AddDirection(d Direction) Vector {
+	return v.Add(DirectionToVector[d])
+}
+
 func (v Vector) Minus(u Vector) Vector {
 	return Vector{X: v.X - u.X, Y: v.Y - u.Y}
+}
+
+func (v Vector) MinusDirection(d Direction) Vector {
+	return v.Minus(DirectionToVector[d])
 }
 
 func (v Vector) Within(limit Vector) bool {
