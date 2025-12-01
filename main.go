@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/microhod/adventofcode/internal/puzzle"
 )
@@ -37,7 +38,7 @@ func main() {
 	if err != nil {
 		fail(err)
 	}
-	token := string(bytes)
+	token := strings.TrimSpace(string(bytes))
 
 	client := puzzle.NewClient(token)
 	p, err := client.Get(year, day)

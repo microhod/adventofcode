@@ -11,6 +11,10 @@ type Vector struct {
 	X, Y int
 }
 
+func (v Vector) Scale(a int) Vector {
+	return Vector{X: a * v.X, Y: a * v.Y}
+}
+
 func (v Vector) Add(u Vector) Vector {
 	return Vector{X: v.X + u.X, Y: v.Y + u.Y}
 }
